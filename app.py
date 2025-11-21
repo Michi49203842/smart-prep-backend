@@ -11,12 +11,8 @@ app = Flask(__name__)
 # --- 1. DATEN VORBEREITEN (Liest die große CSV-Datei beim Start) ---
 try:
     # Definiert den absoluten Pfad zur food_data.csv (behebt lokale und Server-Pfadfehler)
-    try:
-        # Versucht, den Pfad vom Skript-Aufruf zu finden
-        base_dir = os.path.dirname(os.path.abspath(sys.argv[0]))
-    except:
-        # Fallback für spezielle Umgebungen
-        base_dir = os.path.dirname(os.path.abspath(__file__))
+    # Nutzt immer den Ordner, in dem die app.py liegt
+    base_dir = os.path.dirname(os.path.abspath(__file__))
         
     FILE_PATH = os.path.join(base_dir, 'food_data.csv')
 
