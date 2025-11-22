@@ -146,7 +146,8 @@ Red_Wine_Simple,5.00,1,0,15,0
 Vinegar_Wine,2.00,0,0,10,0
 Chocolate_Milk,12.00,70,300,550,0
 Gummy_Bears,6.00,50,0,800,0
-Chips_Salted,12.00,60,350,500,0
+Chips_Salted_V,12.00,60,350,500,0
+Gummy_Bears_Organic,8.00,50,0,800,0
 Ice_Cream_Vanilla,5.00,40,150,200,0
 Popcorn_Maize,3.00,130,40,700,0
 Pizza_Frozen_Cheap,3.00,100,100,300,0
@@ -197,4 +198,3 @@ Vodka,20.00,0,0,0,0
 Chips_Salted_V,12.00,60,350,500,0
 Gummy_Bears_Organic,8.00,50,0,800,0
 Noodle_Dish_Ready,4.00,80,50,250,0
-
