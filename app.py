@@ -5,7 +5,6 @@ from flask_cors import CORS
 import pandas as pd
 import os
 import sys
-import traceback
 
 app = Flask(__name__)
 CORS(app)
@@ -13,14 +12,16 @@ CORS(app)
 # --- 1. DATEN VORBEREITEN ---
 DATA_LOADED = False
 DF = None
-DEBUG_MSG = ""
+DEBUG_INFO = ""
 
-def load_data():
-    global DATA_LOADED, DF, DEBUG_MSG
+def load_and_clean_data():
+    global DATA_LOADED, DF, DEBUG_INFO
     try:
+        # Pfad finden (Robust für Render)
         base_dir = os.path.dirname(os.path.abspath(__file__))
         FILE_PATH = os.path.join(base_dir, 'food_data.csv')
-        DEBUG_MSG = f"Lade Pfad: {FILE_PATH}"
+        DEBUG_INFO = f"Suche Datei in: {FILE_PATH}"
+        print(f"DEBUG: {DEBUG_INFO}")
 
         try:
             DF = pd.read_csv(FILE_PATH, encoding='utf-8')
@@ -34,113 +35,114 @@ def load_data():
             DF[col] = pd.to_numeric(DF[col], errors='coerce')
         
         DF.dropna(inplace=True)
-
-        # --- WICHTIGER FIX: DUPLIKATE LÖSCHEN ---
-        # Wenn "Tomate" zweimal vorkommt, behalten wir nur die erste.
-        # Das verhindert den "Ambiguous Truth Value" Fehler.
+        
+        # Duplikate entfernen, um Fehler zu vermeiden
         DF.drop_duplicates(subset=['Product_Name'], keep='first', inplace=True)
-
+        
         DF.set_index('Product_Name', inplace=True)
         
         DATA_LOADED = True
-        print(f"SUCCESS: {len(DF)} einzigartige Produkte geladen.")
+        print(f"SUCCESS: Database loaded successfully.")
         return True
 
     except Exception as e:
-        DEBUG_MSG = f"Fehler beim Laden: {str(e)}"
-        print(f"FATAL ERROR: {DEBUG_MSG}")
+        print(f"FATAL ERROR: {e}")
+        DATA_LOADED = False
         return False
 
-load_data()
+load_and_clean_data()
 
 @app.route('/optimize', methods=['GET'])
 def run_optimization():
-    try:
+    if not DATA_LOADED:
+        load_and_clean_data()
         if not DATA_LOADED:
-            if not load_data():
-                return jsonify({
-                    "status": "FATAL ERROR",
-                    "message": "Database load failed.",
-                    "details": DEBUG_MSG
-                }), 500
+            return jsonify({"status": "FATAL ERROR", "message": "Database Error"}), 500
 
+    try:
         # Parameter lesen
-        try:
-            budget_max = float(request.args.get('budget', 50.0))
-            protein_min = float(request.args.get('protein', 1050.0))
-            fett_max = float(request.args.get('fat', 700.0))
-            kohlenhydrate_max = float(request.args.get('carbs', 3500.0))
-            gemuese_min = float(request.args.get('produce', 4.0))
-            
-            # Vielfalts-Parameter
-            max_per_item = 1.5 
-            min_per_item = 0.2 
-            min_unique_items = 6 
-        except ValueError as e:
-            return jsonify({"error": "Parameter Error", "details": str(e)}), 400
-
-        # Optimierung aufbauen
-        prob = pulp.LpProblem("Nutrition_Optimization", pulp.LpMinimize)
-        produkte = DF.index.tolist()
+        budget_max = float(request.args.get('budget', 50.0))
+        protein_min = float(request.args.get('protein', 1050.0))
+        fett_max = float(request.args.get('fat', 700.0))
+        kohlenhydrate_max = float(request.args.get('carbs', 3500.0))
+        gemuese_min = float(request.args.get('produce', 4.0))
         
-        produkt_mengen = pulp.LpVariable.dicts("Menge", produkte, lowBound=0, cat='Continuous')
-        produkt_gewaehlt = pulp.LpVariable.dicts("Gewaehlt", produkte, cat='Binary')
+        # Vielfalts-Parameter
+        max_per_item = 1.5 
+        min_per_item = 0.2 
+        min_unique_items = 6 
+    except:
+        return jsonify({"error": "Invalid parameters."}), 400
 
-        # Zielfunktion
-        prob += pulp.lpSum([DF.loc[p, 'Price_per_kg_EUR'] * produkt_mengen[p] for p in produkte])
+    # Optimierung aufbauen
+    prob = pulp.LpProblem("Nutrition_Optimization", pulp.LpMinimize)
+    produkte = DF.index.tolist()
+    
+    produkt_mengen = pulp.LpVariable.dicts("Menge", produkte, lowBound=0, cat='Continuous')
+    produkt_gewaehlt = pulp.LpVariable.dicts("Gewaehlt", produkte, cat='Binary')
 
-        # Constraints
-        prob += pulp.lpSum([DF.loc[p, 'Price_per_kg_EUR'] * produkt_mengen[p] for p in produkte]) <= budget_max
-        prob += pulp.lpSum([DF.loc[p, 'Protein_g_per_kg'] * produkt_mengen[p] for p in produkte]) >= protein_min
-        prob += pulp.lpSum([DF.loc[p, 'Fat_g_per_kg'] * produkt_mengen[p] for p in produkte]) <= fett_max
-        prob += pulp.lpSum([DF.loc[p, 'Carbs_g_per_kg'] * produkt_mengen[p] for p in produkte]) <= kohlenhydrate_max
-        
-        gemuese_produkte = DF[DF['Is_Produce'] == 1].index.tolist()
-        if len(gemuese_produkte) > 0:
-            prob += pulp.lpSum([produkt_mengen[p] for p in gemuese_produkte]) >= gemuese_min
+    # Zielfunktion
+    prob += pulp.lpSum([DF.loc[p, 'Price_per_kg_EUR'] * produkt_mengen[p] for p in produkte])
 
-        # Vielfalts-Logik (Hier passierte der Fehler)
-        for p in produkte:
-            limit = max_per_item
-            # Da wir Duplikate entfernt haben, gibt .loc[p] jetzt sicher nur EINEN Wert zurück
-            if DF.loc[p, 'Is_Produce'] == 1: 
-                limit = 4.0
-                
-            prob += produkt_mengen[p] <= limit * produkt_gewaehlt[p]
-            prob += produkt_mengen[p] >= min_per_item * produkt_gewaehlt[p]
+    # Constraints
+    prob += pulp.lpSum([DF.loc[p, 'Price_per_kg_EUR'] * produkt_mengen[p] for p in produkte]) <= budget_max
+    prob += pulp.lpSum([DF.loc[p, 'Protein_g_per_kg'] * produkt_mengen[p] for p in produkte]) >= protein_min
+    prob += pulp.lpSum([DF.loc[p, 'Fat_g_per_kg'] * produkt_mengen[p] for p in produkte]) <= fett_max
+    prob += pulp.lpSum([DF.loc[p, 'Carbs_g_per_kg'] * produkt_mengen[p] for p in produkte]) <= kohlenhydrate_max
+    
+    gemuese_produkte = DF[DF['Is_Produce'] == 1].index.tolist()
+    if len(gemuese_produkte) > 0:
+        prob += pulp.lpSum([produkt_mengen[p] for p in gemuese_produkte]) >= gemuese_min
 
-        prob += pulp.lpSum([produkt_gewaehlt[p] for p in produkte]) >= min_unique_items
+    # Vielfalts-Regeln
+    for p in produkte:
+        limit = max_per_item
+        if DF.loc[p, 'Is_Produce'] == 1: limit = 4.0
+        prob += produkt_mengen[p] <= limit * produkt_gewaehlt[p]
+        prob += produkt_mengen[p] >= min_per_item * produkt_gewaehlt[p]
 
-        # Lösen
+    prob += pulp.lpSum([produkt_gewaehlt[p] for p in produkte]) >= min_unique_items
+
+    try:
         prob.solve(pulp.PULP_CBC_CMD(msg=0))
-
-        if pulp.LpStatus[prob.status] == "Optimal":
-            einkaufsliste = {}
-            for v in prob.variables():
-                if "Menge" in v.name and v.varValue > 0.001:
-                    clean_name = v.name.replace('Menge_', '').replace('_', ' ')
-                    einkaufsliste[clean_name] = f"{v.varValue:.2f} kg"
-
-            return jsonify({
-                "status": "Success",
-                "total_cost": f"{pulp.value(prob.objective):.2f} €",
-                "optimized_shopping_list": einkaufsliste
-            })
-        else:
-            return jsonify({
-                "status": "Error", 
-                "message": f"Optimization failed. Status: {pulp.LpStatus[prob.status]}",
-                "hint": "Budget too low or constraints too strict."
-            }), 500
-
     except Exception as e:
-        print("CRASH IN OPTIMIZATION:")
-        traceback.print_exc()
+         return jsonify({"status": "Error", "message": str(e)}), 500
+
+    if pulp.LpStatus[prob.status] == "Optimal":
+        einkaufsliste = {}
+        for v in prob.variables():
+            # Nur Mengen > 0.001 (Gleitkomma-Toleranz)
+            if "Menge" in v.name and v.varValue > 0.001:
+                # Den echten Namen aus der Variable holen (Menge_Name -> Name)
+                raw_name = v.name.replace('Menge_', '')
+                
+                # Preis holen für detaillierte Ansicht
+                try:
+                    single_price = DF.loc[raw_name, 'Price_per_kg_EUR']
+                except:
+                    single_price = 0 # Fallback falls Name nicht matcht
+                
+                # Kosten für dieses Item berechnen
+                item_cost = v.varValue * single_price
+                
+                # Schönen Namen für Anzeige bauen
+                clean_name = raw_name.replace('_', ' ')
+                
+                # WICHTIG: Hier erstellen wir das Objekt, das dein Frontend erwartet!
+                einkaufsliste[clean_name] = {
+                    "amount": round(v.varValue, 2),
+                    "cost": round(item_cost, 2)
+                }
+
         return jsonify({
-            "status": "CRASH",
-            "message": "Internal Code Error",
-            "error_details": str(e),
-            "traceback": traceback.format_exc()
+            "status": "Success",
+            "total_cost": f"{pulp.value(prob.objective):.2f}",
+            "optimized_shopping_list": einkaufsliste
+        })
+    else:
+        return jsonify({
+            "status": "Error", 
+            "message": "Nicht lösbar! Budget zu niedrig für diese Ziele."
         }), 500
 
 if __name__ == '__main__':
