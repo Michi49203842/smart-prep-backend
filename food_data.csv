@@ -1,200 +1,50 @@
 Product_Name,Price_per_kg_EUR,Protein_g_per_kg,Fat_g_per_kg,Carbs_g_per_kg,Is_Produce
-Chicken_Breast_Fresh,7.90,230,10,0,0
-Turkey_Breast_Fresh,8.50,240,8,0,0
-Pork_Tenderloin,10.90,220,25,0,0
-Ground_Beef_Lean,9.90,200,150,0,0
-Salmon_Fillet_Fresh,18.00,200,130,0,0
-Pollock_Fillet_Frozen,6.50,180,5,0,0
-Tuna_Canned_Water,9.00,250,10,0,0
-Pork_Belly,5.50,150,350,0,0
-Smoked_Pork_Neck,8.90,200,180,0,0
-Chicken_Wings,4.00,180,150,0,0
-Trout_Fresh,14.00,180,40,0,0
-Shrimp_Frozen,19.90,240,5,0,0
-Salami,12.00,200,300,0,0
-Cooked_Ham,8.50,180,40,0,0
-Frankfurter_Sausages,6.90,120,250,50,0
-Breakfast_Bacon,15.00,180,400,0,0
-Vegetarian_Schnitzel_Tofu,9.00,180,100,120,0
-Veggie_Ground_Soy,6.00,220,20,100,0
-Tofu_Natural,4.50,150,80,20,0
-Mackerel_Canned,7.50,200,150,0,0
-Eggs_Size_M,3.00,120,100,10,0
-Milk_1_5_Fat,0.95,34,15,48,0
-Milk_3_5_Fat,1.05,33,35,48,0
-Low_Fat_Quark,1.90,130,5,40,0
-Cottage_Cheese,4.80,110,10,30,0
-Natural_Yogurt_1_5,1.50,40,15,60,0
-Greek_Yogurt_Low_Fat,3.50,100,20,50,0
-Edam_Low_Fat,8.90,300,170,0,0
-Gouda_Full_Fat,9.50,250,300,0,0
-Mozzarella,6.00,180,160,5,0
-Feta_Cheese,12.00,170,220,50,0
-Cream_Cheese_Natural,5.00,60,200,40,0
-Mascarpone,8.00,50,400,50,0
-Whipping_Cream,3.50,30,300,40,0
-Sweetened_Condensed_Milk,2.50,70,80,550,0
-Soy_Drink_Natural,1.90,33,18,15,0
-Oat_Drink_Natural,2.00,10,10,60,0
-Kefir,2.50,35,15,40,0
-Ricotta,7.00,110,130,30,0
-Parmesan,15.00,350,250,0,0
-Brown_Rice,1.80,75,20,750,0
-White_Rice,1.00,65,10,790,0
-Basmati_Rice,2.50,70,10,780,0
-Lentils_Dry,3.20,240,15,550,0
-Chickpeas_Dry,3.50,200,50,600,0
-Kidney_Beans_Canned,1.50,90,5,160,0
-Black_Beans_Canned,2.00,80,10,150,0
-Quinoa,6.00,140,60,640,0
-Couscous,1.50,110,10,730,0
-Whole_Wheat_Pasta,1.50,120,30,650,0
-Wheat_Pasta,0.80,110,10,780,0
-Oatmeal,1.50,135,70,600,0
-Wheat_Flour,0.50,100,10,750,0
-Baking_Powder,5.00,0,0,0,0
-Sugar,0.80,0,0,1000,0
-Whole_Wheat_Toast,3.00,90,40,450,0
-White_Toast,2.50,70,40,500,0
-Baguette,2.00,80,10,550,0
-Rye_Bread,2.50,90,20,480,0
-Croissant,8.00,70,250,450,0
-Frozen_Pizza_Simple,3.00,100,100,300,0
-Frozen_Fries,1.50,20,50,250,0
-Breadcrumbs,2.00,110,10,700,0
-Cornflakes,4.00,80,30,800,0
-Muesli_Basic,5.00,100,80,600,0
-Yeast_Fresh,4.00,100,0,0,0
-Polenta,1.50,80,10,750,0
-Semolina,1.20,100,10,750,0
-Bread_Dumplings_Ready,4.50,70,40,400,0
-Potatoes,0.90,20,5,160,1
-Sweet_Potatoes,2.50,15,5,200,1
-Broccoli_Fresh,3.50,30,5,70,1
-Cauliflower,2.80,25,3,50,1
-Carrots_Bunch,1.20,10,2,80,1
-Onions,0.80,10,1,80,1
-Garlic,6.00,20,5,200,1
-Tomatoes_Loose,4.00,10,2,40,1
-Cucumber,1.50,5,1,40,1
-Bell_Pepper_Red,3.50,10,3,60,1
-Spinach_Fresh,5.00,30,5,40,1
-Frozen_Veggie_Mix,2.00,20,5,60,1
-Zucchini,1.80,10,2,30,1
-White_Cabbage,0.70,10,1,60,1
-Lettuce_Head,4.00,5,1,30,1
-Arugula,6.00,20,5,30,1
-Lambs_Lettuce,10.00,15,3,40,1
-Avocado,8.00,20,150,80,1
-Pumpkin_Hokkaido,1.50,10,5,80,1
-Mushrooms,5.00,30,5,40,1
-Corn_Canned,2.50,30,10,180,1
-Olives_Glass,10.00,10,150,10,1
-Pickles_Glass,1.00,5,1,20,1
-Kidney_Beans_Canned_V,1.50,90,5,160,1
-Peas_Frozen,2.50,50,5,130,1
-Apples_Regional,2.50,3,2,140,1
-Bananas,1.50,10,2,220,1
-Oranges,1.80,8,1,120,1
-Berries_Frozen,6.00,5,2,100,1
-Grapes,3.50,6,1,180,1
-Pears,2.80,4,2,150,1
-Lemons,3.00,5,2,100,1
-Kiwi,4.00,10,5,120,1
-Mandarins,2.00,7,1,130,1
-Pineapple,2.50,5,2,130,1
-Walnuts,15.00,150,600,150,0
-Almonds,12.00,210,500,200,0
-Peanut_Butter_Natural,6.00,250,500,200,0
-Sunflower_Seeds,5.00,200,500,240,0
-Pumpkin_Seeds,8.00,300,450,150,0
-Chia_Seeds,10.00,180,300,400,0
-Flax_Seeds,4.00,180,420,280,0
-Raisins,6.00,20,5,700,0
-Dates_Dried,8.00,20,5,650,0
-Prunes_Dried,6.50,20,2,650,0
-Strawberry_Jam,3.50,5,0,550,0
-Honey,7.00,5,0,800,0
-Maple_Syrup,15.00,0,0,670,0
-Olive_Oil_Virgin,12.00,0,1000,0,0
-Rapeseed_Oil,2.50,0,1000,0,0
-Sunflower_Oil,2.00,0,1000,0,0
-Butter,15.00,10,820,5,0
-Margarine,4.00,0,750,5,0
-Balsamic_Vinegar,3.00,0,0,170,0
-Soy_Sauce,4.00,100,0,80,0
-Tomato_Paste_Tube,3.00,40,5,200,1
-Ketchup,2.50,10,0,250,0
-Mayonnaise,5.00,10,700,50,0
-Mustard_Medium,1.50,50,40,60,0
-Salt,0.50,0,0,0,0
-Pepper_Whole,20.00,100,30,600,0
-Curry_Powder,15.00,100,100,400,0
-Oregano_Dried,18.00,100,50,600,0
-Garlic_Powder,10.00,150,10,700,0
-Paprika_Powder,12.00,140,130,500,0
-Broth_Powder,8.00,100,50,50,0
-Chicken_Broth_Glass,4.00,50,10,10,0
-Pesto_Glass,10.00,80,300,50,0
-Mineral_Water_Crate,0.20,0,0,0,0
-Apple_Juice,1.50,1,0,110,0
-Orange_Juice,1.80,2,0,100,0
-Coffee_Beans,10.00,100,100,0,0
-Tea_Bags,8.00,0,0,0,0
-Beer_Pilsner,1.50,5,0,30,0
-Red_Wine_Simple,5.00,1,0,15,0
-Vinegar_Wine,2.00,0,0,10,0
-Chocolate_Milk,12.00,70,300,550,0
-Gummy_Bears,6.00,50,0,800,0
-Chips_Salted_V,12.00,60,350,500,0
-Gummy_Bears_Organic,8.00,50,0,800,0
-Ice_Cream_Vanilla,5.00,40,150,200,0
-Popcorn_Maize,3.00,130,40,700,0
-Pizza_Frozen_Cheap,3.00,100,100,300,0
-Lentil_Soup_Canned,2.00,40,10,120,1
-Tomato_Soup_Canned,1.50,10,5,60,1
-Shampoo,8.00,0,0,0,0
-Dish_Soap,3.00,0,0,0,0
-Toilet_Paper_Roll,4.00,0,0,0,0
-Frozen_Ready_Meal,6.00,100,80,150,0
-Waffle_Dough_Ready,3.50,50,100,450,0
-Cake_Mix_Baking,4.00,40,50,500,0
-Pudding_Powder,3.00,10,5,700,0
-Gingerbread_Ready,8.00,60,150,500,0
-Bratwurst_Ready,7.00,150,200,50,0
-Fish_Sticks_Frozen,5.50,160,80,150,0
-Herring_Canned,6.00,220,150,0,0
-Sardines_Canned,8.00,250,200,0,0
-Oat_Milk_Barista,2.50,10,30,60,0
-Condensed_Milk_Unsweetened,1.50,70,50,100,0
-Goat_Cheese_Roll,15.00,200,250,0,0
-Processed_Cheese,5.00,120,200,50,0
-Sour_Cream,3.00,30,200,40,0
-Beans_Dry,2.50,220,10,500,0
-Spelt_Grains,4.00,140,40,650,0
-Spelt_Flour,1.00,120,10,700,0
-Pizza_Dough_Ready,4.00,80,30,400,0
-Frozen_Broccoli,2.50,30,5,70,1
-Frozen_Peas,2.50,50,5,130,1
-Leek,2.00,10,1,60,1
-Celery_Root,1.50,10,1,80,1
-Parsley_Bunch,8.00,30,5,50,1
-Basil_Pot,12.00,30,5,50,1
-Lettuce_Organic,6.00,5,1,30,1
-Birch_Sugar_Xylitol,10.00,0,0,1000,0
-Coconut_Oil,18.00,0,1000,0,0
-Peanut_Oil,4.00,0,1000,0,0
-Maple_Syrup_Organic,20.00,0,0,670,0
-Chili_Sauce_Sriracha,5.00,10,10,200,0
-Worcestershire_Sauce,6.00,20,0,100,0
-Applesauce_Jar,2.00,5,0,200,1
-Pickles_Sweet_Sour,1.50,5,1,100,1
-Apple_Cider_Vinegar,2.00,0,0,10,0
-Cocoa_Powder,10.00,200,200,200,0
-Instant_Coffee,15.00,200,10,100,0
-Green_Tea_Loose,25.00,0,0,0,0
-Red_Wine_Premium,15.00,1,0,15,0
-Vodka,20.00,0,0,0,0
-Chips_Salted_V,12.00,60,350,500,0
-Gummy_Bears_Organic,8.00,50,0,800,0
-Noodle_Dish_Ready,4.00,80,50,250,0
+Eau De Source,2.0,0.0,0.0,0.0,0
+Marmite Yeast Extract,8.0,340.0,5.0,300.0,0
+Original Taste,2.0,0.0,0.0,106.0,0
+Prince Goût Chocolat,1.5,65.0,175.0,700.0,0
+Excellence Noir Prodigieux 90% Cacao,2.0,100.0,550.0,140.0,0
+70% chocolate,2.0,95.0,410.0,350.0,0
+Nutella,1.5,63.0,309.0,575.0,0
+Excellence 85% Cacao Rich Dark,2.0,125.0,460.0,220.0,0
+Geröstete Mandel Ohne Zucker,2.0,5.0,11.0,0.0,0
+Chocolat noir - 85% cacao,2.0,120.0,480.0,360.0,0
+CRISTALINE Eau De Source 0.5L,2.0,0.0,0.0,0.0,0
+Nutella,1.5,63.0,309.0,575.0,0
+Walnusskerne naturbelassen,2.0,155.0,691.0,37.0,0
+Mandeln,8.0,247.0,533.0,46.7,0
+Cashewkerne,2.0,62.0,143.0,59.0,0
+Coca-Cola,2.0,0.0,0.0,106.0,0
+Coke Zero,2.0,0.0,0.0,0.0,0
+Notenmix Mélange de Noix ongebrand - non grillé,8.0,204.0,580.0,64.0,0
+Hafer Milch,2.0,2.0,15.0,58.0,0
+Oat Drink Barista Edition,2.0,11.0,30.0,71.0,0
+Excellence Noir Intense 70% Cacao,2.0,95.0,410.0,350.0,0
+Lightly sea salted crisps,2.0,62.0,270.0,490.0,0
+Excellence Noir Puissant 85% Cacao,2.0,125.0,460.0,220.0,0
+Extra dark 74% Cocoa,2.0,99.0,420.0,320.0,0
+Sojasauce,2.0,100.0,0.0,32.0,0
+PESTO alla GENOVESE,2.0,47.0,470.0,110.0,0
+Mandelmilch mit Zucker,2.0,4.0,11.0,24.0,0
+cruesly mélange de noix,1.5,85.0,190.0,570.0,0
+Tuc Original,1.5,83.0,190.0,670.0,0
+Biscuits croquants au coeur onctueux de Nutella®,1.5,79.0,248.0,640.0,0
+nutella,1.5,63.0,309.0,575.0,0
+Coke Zero can,2.0,0.0,0.0,0.0,0
+Pomme 🍏 🍎 Noisette🥜,1.5,98.0,170.0,620.0,0
+ORIGINAL TASTE,2.0,0.0,0.0,106.0,0
+Haferflocken,1.5,135.0,70.0,587.0,0
+Boisson à l’avoine,2.0,8.0,15.0,63.0,0
+Dark Chocolate 70%,2.0,88.0,400.0,320.0,0
+Flocons d'avoine,1.5,110.0,71.0,580.0,0
+Nutella,1.5,60.0,306.70000000000005,573.3,0
+Crunchy oats&honey,1.5,80.0,169.0,600.0,0
+nutella,1.5,60.0,307.0,573.0,0
+Coca-Cola Zero Sugar,2.0,0.0,0.0,0.0,0
+Wholegrain Rye Bread,2.0,57.1,17.9,380.0,0
+Bitter Extra Kraftig,2.0,140.0,490.0,100.0,0
+Sardines Huile d'Olive Vierge Extra,8.0,561.0,366.0,0.0,0
+Coca-Cola,2.0,0.0,0.0,106.0,0
+Nestlé Dessert,1.5,60.0,341.0,507.0,0
+Nutella,1.5,63.0,309.0,572.0,0
+Chocolat au lait,1.5,65.0,310.0,570.0,0

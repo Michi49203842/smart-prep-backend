@@ -1,54 +1,58 @@
 import requests
+import pandas as pd
 import json
 
-# --- 1. DIE BESTELLUNG (Der Request) ---
-# Wir wollen Daten zu einem Produkt. Nehmen wir "Nutella" als Test.
-# Der Barcode (EAN) für ein Standard-Nutella Glas ist: 3017620422003
-barcode = "3017620422003"
+# --- 1. ZIELE DEFINIEREN ---
+# Wir wollen Daten zu echten Produkten. Hier sind Barcodes (EANs) für Tests:
+# 3017620422003 = Nutella
+# 4008400404127 = Kinder Riegel
+# 5449000000996 = Coca Cola
+barcodes = ["3017620422003", "4008400404127", "5449000000996"]
 
-# Das ist die Adresse der Küche (API Endpunkt) von OpenFoodFacts
-url = f"https://world.openfoodfacts.org/api/v0/product/{barcode}.json"
+# Leere Liste für unsere Ergebnisse
+products_data = []
 
-print(f"📡 Frage Daten ab für Barcode: {barcode}...")
-print(f"🔗 URL: {url}")
+print("📡 Starte Datenabruf aus dem Internet...\n")
 
-# Wir schicken den Kellner los (GET-Request)
-response = requests.get(url)
-
-# --- 2. DIE LIEFERUNG (Response prüfen) ---
-# Status Code 200 bedeutet: "Alles okay, hier ist deine Bestellung."
-# Status Code 404 bedeutet: "Nicht gefunden."
-if response.status_code == 200:
-    print("✅ Antwort erhalten!")
+# --- 2. DATEN LIVE HOLEN (Der Loop) ---
+for code in barcodes:
+    url = f"https://world.openfoodfacts.org/api/v0/product/{code}.json"
     
-    # --- 3. DAS ESSEN AUSPACKEN (JSON Parsing) ---
-    # Die Daten kommen als Textblock. Wir wandeln sie in ein Python-Dictionary um.
-    data = response.json()
-    
-    # Prüfen, ob das Produkt in der Datenbank gefunden wurde
-    if data['status'] == 1:
-        product = data['product']
+    try:
+        # Der "Kellner" geht zur API und holt die Daten
+        response = requests.get(url)
+        data = response.json()
         
-        # Wir greifen auf die verschachtelten Daten zu
-        name = product.get('product_name', 'Unbekannt')
-        marke = product.get('brands', 'Unbekannt')
-        
-        # Nährwerte stecken in einem Unter-Ordner namens 'nutriments'
-        nutri = product.get('nutriments', {})
-        kcal = nutri.get('energy-kcal_100g', 0)
-        zucker = nutri.get('sugars_100g', 0)
-        eiweiss = nutri.get('proteins_100g', 0)
-        
-        print("\n" + "="*30)
-        print(f"🍫 Produkt: {name}")
-        print(f"🏷️  Marke:   {marke}")
-        print("-" * 30)
-        print(f"🔥 Kalorien: {kcal} kcal")
-        print(f"🍬 Zucker:   {zucker} g")
-        print(f"💪 Eiweiß:   {eiweiss} g")
-        print("="*30 + "\n")
-        
-    else:
-        print("❌ Produkt existiert nicht in der OpenFoodFacts Datenbank.")
-else:
-    print(f"❌ Fehler bei der Verbindung: Status Code {response.status_code}")
+        if data.get('status') == 1:
+            product = data['product']
+            nutriments = product.get('nutriments', {})
+            
+            # Wir extrahieren nur das, was wir brauchen
+            info = {
+                'Name': product.get('product_name', 'Unbekannt'),
+                'Marke': product.get('brands', 'Unbekannt'),
+                'Kalorien': nutriments.get('energy-kcal_100g', 0),
+                'Zucker': nutriments.get('sugars_100g', 0),
+                'Protein': nutriments.get('proteins_100g', 0)
+            }
+            products_data.append(info)
+            print(f"✅ Gefunden: {info['Name']}")
+        else:
+            print(f"❌ Barcode {code} nicht gefunden.")
+            
+    except Exception as e:
+        print(f"⚠️ Fehler bei {code}: {e}")
+
+print("\n" + "="*50 + "\n")
+
+# --- 3. ANALYSE MIT PANDAS ---
+# Jetzt wandeln wir die rohen Daten in einen Pandas DataFrame um
+df_web = pd.DataFrame(products_data)
+
+print("--- DEINE LIVE-DATENBANK ---")
+print(df_web)
+print("\n" + "="*50 + "\n")
+
+# Kleine Analyse: Wer hat am meisten Zucker?
+sugar_king = df_web.sort_values(by='Zucker', ascending=False).iloc[0]
+print(f"👑 Der Zuckerkönig ist: {sugar_king['Name']} ({sugar_king['Zucker']}g Zucker/100g)")
