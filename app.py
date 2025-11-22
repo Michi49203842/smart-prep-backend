@@ -12,63 +12,67 @@ CORS(app)
 # --- 1. DATEN VORBEREITEN ---
 DATA_LOADED = False
 DF = None
-DEBUG_PATH = "Unbekannt"
+DEBUG_INFO = ""
 
-def load_data():
-    global DATA_LOADED, DF, DEBUG_PATH
+def load_and_clean_data():
+    global DATA_LOADED, DF, DEBUG_INFO
     try:
-        # FINALER PFAD-FIX:
-        # __file__ ist immer der Pfad zu DIESER app.py Datei.
-        # Wir holen uns den Ordner, in dem diese Datei liegt.
-        base_dir = os.path.dirname(os.path.abspath(__file__))
+        # Pfad finden
+        try:
+            base_dir = os.path.dirname(os.path.abspath(sys.argv[0]))
+        except:
+            base_dir = os.path.dirname(os.path.abspath(__file__))
         
-        # Wir bauen den Pfad zur CSV
         FILE_PATH = os.path.join(base_dir, 'food_data.csv')
-        DEBUG_PATH = FILE_PATH
 
-        print(f"DEBUG: Versuche Daten zu laden von: {FILE_PATH}")
-
-        # Versuche utf-8, falle zurück auf latin-1 wenn nötig
+        # Laden
         try:
             DF = pd.read_csv(FILE_PATH, encoding='utf-8')
         except UnicodeDecodeError:
             DF = pd.read_csv(FILE_PATH, encoding='latin-1')
 
-        # Einfache Datenreinigung (String zu Zahl)
-        cols = ['Price_per_kg_EUR', 'Protein_g_per_kg', 'Fat_g_per_kg', 'Carbs_g_per_kg', 'Is_Produce']
-        for col in cols:
+        # --- AGGRESSIVE REINIGUNG (Der Fix) ---
+        # 1. Spaltennamen bereinigen (Leerzeichen entfernen)
+        DF.columns = DF.columns.str.strip()
+
+        # 2. Zahlen erzwingen
+        cols_to_fix = ['Price_per_kg_EUR', 'Protein_g_per_kg', 'Fat_g_per_kg', 'Carbs_g_per_kg', 'Is_Produce']
+        
+        for col in cols_to_fix:
+            # Wandelt alles in Zahlen um. Fehlerhafte Werte (wie "1\r") werden repariert.
             DF[col] = pd.to_numeric(DF[col], errors='coerce')
         
+        # 3. Leere Zeilen löschen
         DF.dropna(inplace=True)
+        
+        # 4. Sicherstellen, dass Is_Produce wirklich 0 oder 1 ist
+        DF['Is_Produce'] = DF['Is_Produce'].astype(int)
+
         DF.set_index('Product_Name', inplace=True)
         
+        # DIAGNOSE: Wie viele Gemüse haben wir gefunden?
+        gemuese_anzahl = len(DF[DF['Is_Produce'] == 1])
+        DEBUG_INFO = f"Daten geladen. Produkte: {len(DF)}. Gemüse gefunden: {gemuese_anzahl}"
+        print(f"SUCCESS: {DEBUG_INFO}")
+        
         DATA_LOADED = True
-        print(f"SUCCESS: Database loaded successfully.")
         return True
 
     except Exception as e:
-        print(f"FATAL ERROR beim Laden von {DEBUG_PATH}: {e}")
-        # Wir listen den Ordnerinhalt auf, um zu sehen, was da ist
-        try:
-            print(f"Dateien im Ordner {base_dir}: {os.listdir(base_dir)}")
-        except:
-            pass
+        print(f"FATAL ERROR: {e}")
+        DATA_LOADED = False
         return False
 
-# Initialer Startversuch
-load_data()
+# Starten
+load_and_clean_data()
 
 @app.route('/optimize', methods=['GET'])
 def run_optimization():
-    # Wenn Daten fehlen, versuche Neu-Laden (Self-Healing)
+    # Self-Healing
     if not DATA_LOADED:
-        load_data()
+        load_and_clean_data()
         if not DATA_LOADED:
-            return jsonify({
-                "status": "FATAL ERROR",
-                "message": f"Server Error: Database file not found at {DEBUG_PATH}.",
-                "hint": "Check Render logs to see file structure."
-            }), 500
+            return jsonify({"status": "FATAL ERROR", "message": "Server Error: Could not load data."}), 500
 
     try:
         budget_max = float(request.args.get('budget', 50.0))
@@ -79,19 +83,26 @@ def run_optimization():
     except:
         return jsonify({"error": "Invalid parameters."}), 400
 
+    # Optimierung
     prob = pulp.LpProblem("Nutrition_Optimization", pulp.LpMinimize)
     produkte = DF.index.tolist()
     produkt_mengen = pulp.LpVariable.dicts("Menge", produkte, lowBound=0, cat='Continuous')
 
+    # Zielfunktion
     prob += pulp.lpSum([DF.loc[p, 'Price_per_kg_EUR'] * produkt_mengen[p] for p in produkte])
 
+    # Constraints
     prob += pulp.lpSum([DF.loc[p, 'Price_per_kg_EUR'] * produkt_mengen[p] for p in produkte]) <= budget_max
     prob += pulp.lpSum([DF.loc[p, 'Protein_g_per_kg'] * produkt_mengen[p] for p in produkte]) >= protein_min
     prob += pulp.lpSum([DF.loc[p, 'Fat_g_per_kg'] * produkt_mengen[p] for p in produkte]) <= fett_max
     prob += pulp.lpSum([DF.loc[p, 'Carbs_g_per_kg'] * produkt_mengen[p] for p in produkte]) <= kohlenhydrate_max
     
+    # Gemüse Constraint
     gemuese_produkte = DF[DF['Is_Produce'] == 1].index.tolist()
-    prob += pulp.lpSum([produkt_mengen[p] for p in gemuese_produkte]) >= gemuese_min
+    
+    # Sicherheitscheck: Wenn keine Gemüseprodukte erkannt wurden, wird diese Regel unmöglich
+    if len(gemuese_produkte) > 0:
+        prob += pulp.lpSum([produkt_mengen[p] for p in gemuese_produkte]) >= gemuese_min
 
     try:
         prob.solve(pulp.PULP_CBC_CMD(msg=0))
@@ -108,10 +119,17 @@ def run_optimization():
         return jsonify({
             "status": "Success",
             "total_cost": f"{pulp.value(prob.objective):.2f} €",
-            "optimized_shopping_list": einkaufsliste
+            "optimized_shopping_list": einkaufsliste,
+            "debug_info": DEBUG_INFO
         })
     else:
-        return jsonify({"status": "Error", "message": "Optimization failed."}), 500
+        # Wir geben jetzt Debug-Infos zurück, damit du siehst, was los ist
+        return jsonify({
+            "status": "Error",
+            "message": f"Optimization failed. Status: {pulp.LpStatus[prob.status]}.",
+            "debug_info": DEBUG_INFO,
+            "hint": f"Gefundene Gemüse-Produkte: {len(gemuese_produkte)}. Wenn das 0 ist, liegt es an der CSV."
+        }), 500
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
