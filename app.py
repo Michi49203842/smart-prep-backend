@@ -5,7 +5,7 @@ from flask_cors import CORS
 import pandas as pd
 import os
 import sys
-import traceback  # NEU: Das Werkzeug für den Fehlerbericht
+import traceback
 
 app = Flask(__name__)
 CORS(app)
@@ -27,16 +27,23 @@ def load_data():
         except UnicodeDecodeError:
             DF = pd.read_csv(FILE_PATH, encoding='latin-1')
 
-        # Bereinigung: Alles zu Zahlen machen, was Zahlen sein sollen
+        # Bereinigung
+        DF.columns = DF.columns.str.strip()
         cols = ['Price_per_kg_EUR', 'Protein_g_per_kg', 'Fat_g_per_kg', 'Carbs_g_per_kg', 'Is_Produce']
         for col in cols:
             DF[col] = pd.to_numeric(DF[col], errors='coerce')
         
         DF.dropna(inplace=True)
+
+        # --- WICHTIGER FIX: DUPLIKATE LÖSCHEN ---
+        # Wenn "Tomate" zweimal vorkommt, behalten wir nur die erste.
+        # Das verhindert den "Ambiguous Truth Value" Fehler.
+        DF.drop_duplicates(subset=['Product_Name'], keep='first', inplace=True)
+
         DF.set_index('Product_Name', inplace=True)
         
         DATA_LOADED = True
-        print(f"SUCCESS: {len(DF)} Produkte geladen.")
+        print(f"SUCCESS: {len(DF)} einzigartige Produkte geladen.")
         return True
 
     except Exception as e:
@@ -48,11 +55,8 @@ load_data()
 
 @app.route('/optimize', methods=['GET'])
 def run_optimization():
-    # Wir wickeln ALLES in einen Try-Block, damit der Server nicht abstürzt (500),
-    # sondern uns den Fehler als JSON zeigt.
     try:
         if not DATA_LOADED:
-            # Versuch neu zu laden
             if not load_data():
                 return jsonify({
                     "status": "FATAL ERROR",
@@ -95,10 +99,12 @@ def run_optimization():
         if len(gemuese_produkte) > 0:
             prob += pulp.lpSum([produkt_mengen[p] for p in gemuese_produkte]) >= gemuese_min
 
-        # Vielfalts-Logik
+        # Vielfalts-Logik (Hier passierte der Fehler)
         for p in produkte:
             limit = max_per_item
-            if DF.loc[p, 'Is_Produce'] == 1: limit = 4.0
+            # Da wir Duplikate entfernt haben, gibt .loc[p] jetzt sicher nur EINEN Wert zurück
+            if DF.loc[p, 'Is_Produce'] == 1: 
+                limit = 4.0
                 
             prob += produkt_mengen[p] <= limit * produkt_gewaehlt[p]
             prob += produkt_mengen[p] >= min_per_item * produkt_gewaehlt[p]
@@ -128,7 +134,8 @@ def run_optimization():
             }), 500
 
     except Exception as e:
-        # HIER IST DER CRASH REPORTER:
+        print("CRASH IN OPTIMIZATION:")
+        traceback.print_exc()
         return jsonify({
             "status": "CRASH",
             "message": "Internal Code Error",
