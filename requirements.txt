@@ -2,3 +2,4 @@ flask
 pandas
 pulp
 gunicorn
+flask-cors
